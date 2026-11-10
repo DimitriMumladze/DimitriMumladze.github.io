@@ -1,0 +1,50 @@
+---
+import type { Accent } from '../../data/types';
+
+interface Props {
+  accent?: Accent;
+  /** Rotation in degrees. */
+  rotate?: number;
+  class?: string;
+}
+
+const { accent = 1, rotate = -4, class: className } = Astro.props;
+---
+
+<span class:list={['sticker', `sticker--a${accent}`, className]} style={`--rot: ${rotate}deg`}>
+  <slot />
+</span>
+
+<style>
+  .sticker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.5em 0.8em;
+    background: var(--accent-1);
+    color: var(--on-accent);
+    border: var(--bw-sm) solid var(--border);
+    box-shadow: var(--shadow-sm);
+    font-family: var(--ff-mono);
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transform: rotate(var(--rot));
+  }
+
+  :lang(ka) .sticker {
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .sticker--a2 {
+    background: var(--accent-2);
+  }
+
+  .sticker--a3 {
+    background: var(--accent-3);
+  }
+</style>

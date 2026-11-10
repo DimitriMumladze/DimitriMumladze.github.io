@@ -1,0 +1,264 @@
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--header-h) + 1rem);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--ff-body);
+  font-size: var(--fs-base);
+  line-height: var(--lh-body);
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Safety net against horizontal scroll from rotated stickers / marquee.
+     `clip` (unlike `hidden`) does not create a scroll container, so sticky still works. */
+  overflow-x: clip;
+}
+
+img,
+picture,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+img {
+  height: auto;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-weight: 700;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+
+p,
+li,
+dd {
+  text-wrap: pretty;
+}
+
+p,
+li,
+dd,
+h1,
+h2,
+h3,
+h4,
+a {
+  overflow-wrap: break-word;
+}
+
+a {
+  color: inherit;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
+}
+
+a:hover {
+  text-decoration-thickness: 3px;
+}
+
+ul[role='list'],
+ol[role='list'] {
+  list-style: none;
+  padding: 0;
+}
+
+::selection {
+  background: var(--accent-1);
+  color: var(--on-accent);
+}
+
+/* Thick, always-visible keyboard focus. */
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+main:focus {
+  outline: none;
+}
+
+/* Explicit Georgian runs inside non-Georgian pages (e.g. the 404 page). */
+[lang='ka']:not(html) {
+  font-family: var(--font-georgian), var(--font-sans);
+}
+
+/* ==========================================================================
+   Utilities
+   ========================================================================== */
+
+.container {
+  width: min(100% - 2 * var(--gutter), var(--container));
+  margin-inline: auto;
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  z-index: 100;
+  left: var(--gutter);
+  top: 0;
+  padding: 0.75rem 1rem;
+  background: var(--accent-1);
+  color: var(--on-accent);
+  border: var(--bw) solid var(--border);
+  box-shadow: var(--shadow-sm);
+  font-weight: 700;
+  text-decoration: none;
+  transform: translateY(-150%);
+}
+
+.skip-link:focus {
+  transform: translateY(1rem);
+}
+
+/* Elements that only make sense with JS (theme switch, menu button…). */
+.no-js .js-only {
+  display: none !important;
+}
+
+/* Uppercase in Latin only — Georgian has no case in everyday text. */
+.caps {
+  text-transform: uppercase;
+}
+
+:lang(ka) .caps {
+  text-transform: none;
+}
+
+.mono {
+  font-family: var(--ff-mono);
+}
+
+/* Highlighted words on accent-colored backgrounds. */
+mark,
+.hl {
+  background: var(--accent-1);
+  color: var(--on-accent);
+  padding: 0 0.15em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.hl-2 {
+  background: var(--accent-2);
+}
+
+/* Dotted background pattern (used in the hero only). */
+.pattern-dots {
+  background-image: radial-gradient(var(--dot) 1.5px, transparent 1.75px);
+  background-size: 22px 22px;
+}
+
+/* ==========================================================================
+   Sections
+   ========================================================================== */
+
+.section {
+  padding-block: clamp(3.5rem, 2.5rem + 4vw, 6rem);
+  border-top: var(--bw) solid var(--border);
+}
+
+/* ==========================================================================
+   Scroll reveal (only when JS runs and motion is allowed)
+   ========================================================================== */
+
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal] {
+    transition:
+      opacity var(--dur-reveal) var(--ease-out),
+      transform var(--dur-reveal) var(--ease-out);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  .js [data-reveal]:not(.is-revealed) {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+}
+
+/* ==========================================================================
+   Reduced motion: no animation, no transitions, no movement.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   Print
+   ========================================================================== */
+
+@media print {
+  .site-header,
+  .marquee,
+  .skip-link,
+  .js-only {
+    display: none !important;
+  }
+
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

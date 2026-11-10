@@ -1,0 +1,66 @@
+---
+import type { Accent } from '../../data/types';
+
+interface Props {
+  as?: 'article' | 'div' | 'li' | 'section';
+  /** Fill the card with an accent color (text becomes black). */
+  fill?: Accent;
+  /** "Press" into the shadow on hover. */
+  press?: boolean;
+  class?: string;
+  style?: string;
+  [key: `data-${string}`]: string | undefined;
+  [key: `aria-${string}`]: string | undefined;
+}
+
+const { as: Tag = 'div', fill, press = false, class: className, ...rest } = Astro.props;
+---
+
+<Tag class:list={['card', fill && `card--fill-${fill}`, press && 'card--press', className]} {...rest}>
+  <slot />
+</Tag>
+
+<style>
+  .card {
+    position: relative;
+    background: var(--card);
+    color: var(--fg);
+    border: var(--bw) solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+
+  .card--fill-1 {
+    background: var(--accent-1);
+    color: var(--on-accent);
+  }
+
+  .card--fill-2 {
+    background: var(--accent-2);
+    color: var(--on-accent);
+  }
+
+  .card--fill-3 {
+    background: var(--accent-3);
+    color: var(--on-accent);
+  }
+
+  .card--press {
+    transition:
+      transform var(--dur-fast) ease-out,
+      box-shadow var(--dur-fast) ease-out;
+  }
+
+  @media (hover: hover) {
+    .card--press:hover {
+      transform: var(--press);
+      box-shadow: var(--shadow-sm);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card--press:hover {
+      transform: none;
+    }
+  }
+</style>

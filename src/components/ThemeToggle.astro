@@ -1,0 +1,141 @@
+---
+import Icon from './Icon.astro';
+import type { Lang } from '../data/types';
+import { t } from '../data/i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const s = t(Astro.props.lang).a11y;
+---
+
+<button type="button" class="theme-toggle js-only" role="switch" aria-checked="false" data-theme-toggle>
+  <span class="sr-only">{s.darkTheme}</span>
+  <span class="track" aria-hidden="true">
+    <span class="thumb">
+      <Icon name="sun" size={16} class="sun" />
+      <Icon name="moon" size={16} class="moon" />
+    </span>
+  </span>
+</button>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+  const root = document.documentElement;
+  const meta = document.querySelector<HTMLMetaElement>('meta[data-theme-color]');
+  const colors = { light: '#FFFDF5', dark: '#0F0F0F' } as const;
+  type Theme = keyof typeof colors;
+
+  const readStored = (): string | null => {
+    try {
+      return localStorage.getItem('theme');
+    } catch {
+      return null;
+    }
+  };
+
+  function apply(theme: Theme, persist: boolean) {
+    root.dataset.theme = theme;
+    toggle?.setAttribute('aria-checked', String(theme === 'dark'));
+    meta?.setAttribute('content', colors[theme]);
+    if (persist) {
+      try {
+        localStorage.setItem('theme', theme);
+      } catch {
+        /* storage unavailable: the choice lasts for this page view */
+      }
+    }
+  }
+
+  apply(root.dataset.theme === 'dark' ? 'dark' : 'light', false);
+
+  toggle?.addEventListener('click', () => {
+    apply(root.dataset.theme === 'dark' ? 'light' : 'dark', true);
+  });
+
+  // Follow OS changes until the visitor makes an explicit choice.
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (event) => {
+    if (!readStored()) apply(event.matches ? 'dark' : 'light', false);
+  });
+</script>
+
+<style>
+  .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    padding: 0;
+    background: none;
+    border: 0;
+    border-radius: var(--radius);
+  }
+
+  .track {
+    position: relative;
+    display: block;
+    width: 4rem;
+    height: 2.5rem;
+    background: var(--card);
+    border: var(--bw) solid var(--border);
+    box-shadow: var(--shadow-sm);
+    transition:
+      transform var(--dur-fast) ease-out,
+      box-shadow var(--dur-fast) ease-out;
+  }
+
+  .thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    display: grid;
+    place-items: center;
+    width: calc(2.5rem - 2 * var(--bw) - 6px);
+    aspect-ratio: 1;
+    background: var(--accent-1);
+    color: var(--on-accent);
+    border: var(--bw-sm) solid var(--border);
+    transition: transform 180ms var(--ease-out);
+  }
+
+  .thumb :global(svg) {
+    grid-area: 1 / 1;
+  }
+
+  .thumb :global(.moon) {
+    display: none;
+  }
+
+  :global(:root[data-theme='dark']) .thumb {
+    transform: translateX(1.5rem);
+  }
+
+  :global(:root[data-theme='dark']) .thumb :global(.sun) {
+    display: none;
+  }
+
+  :global(:root[data-theme='dark']) .thumb :global(.moon) {
+    display: block;
+  }
+
+  @media (hover: hover) {
+    .theme-toggle:hover .track {
+      transform: var(--press);
+      box-shadow: 0 0 0 var(--shadow-color);
+    }
+  }
+
+  .theme-toggle:focus-visible {
+    outline: none;
+  }
+
+  .theme-toggle:focus-visible .track {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .theme-toggle:hover .track {
+      transform: none;
+    }
+  }
+</style>

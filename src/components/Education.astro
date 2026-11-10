@@ -1,0 +1,174 @@
+---
+import SectionHeading from './SectionHeading.astro';
+import Card from './ui/Card.astro';
+import type { Lang } from '../data/types';
+import { t } from '../data/i18n';
+import { education, languages } from '../data/site';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const s = t(lang);
+const CEFR = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as const;
+---
+
+<section id="education" class="section" aria-labelledby="education-title">
+  <div class="container">
+    <SectionHeading id="education-title" num="06" title={s.sections.education} accent={3} />
+
+    <div class="grid">
+      <div data-reveal>
+        <Card as="article" class="box">
+          <h3 class="box-title caps">{s.education.degreeTitle}</h3>
+          <div class="box-body">
+            <p class="degree">{education.degree[lang]}</p>
+            <p class="school">{education.school[lang]}, {education.city[lang]}</p>
+            <p class="period">
+              <time datetime={education.period.start}>{education.period.start}</time>
+              {' – '}
+              <time datetime={education.period.end}>{education.period.end}</time>
+              {' '}({education.expected[lang]})
+            </p>
+          </div>
+        </Card>
+      </div>
+
+      <div data-reveal style="--reveal-delay: 100ms">
+        <Card as="article" class="box">
+          <h3 class="box-title box-title--alt caps">{s.education.languagesTitle}</h3>
+          <ul class="box-body langs" role="list">
+            {
+              languages.map((language) => (
+                <li class="lang">
+                  <div class="lang-text">
+                    <span class="lang-name">{language.name[lang]}</span>
+                    <span class="lang-level">{language.level[lang]}</span>
+                  </div>
+                  <span class="cefr" aria-hidden="true">
+                    {CEFR.map((step, index) => (
+                      <span class:list={['step', index < language.cefr && 'is-on']}>{step}</span>
+                    ))}
+                  </span>
+                </li>
+              ))
+            }
+          </ul>
+        </Card>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+    gap: clamp(1.75rem, 1rem + 2vw, 2.5rem);
+  }
+
+  .grid > div {
+    display: flex;
+  }
+
+  .grid :global(.box) {
+    width: 100%;
+  }
+
+  .box-title {
+    padding: 0.65rem 1.1rem;
+    background: var(--accent-1);
+    color: var(--on-accent);
+    border-bottom: var(--bw) solid var(--border);
+    font-size: var(--fs-md);
+    line-height: 1.25;
+  }
+
+  .box-title--alt {
+    background: var(--accent-2);
+  }
+
+  :lang(ka) .box-title {
+    font-size: 1.125rem;
+  }
+
+  .box-body {
+    padding: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+  }
+
+  .degree {
+    font-size: var(--fs-lg);
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  .school {
+    margin-top: 0.5rem;
+    font-weight: 600;
+  }
+
+  .period {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.35em 0.65em;
+    background: var(--inverse-bg);
+    color: var(--inverse-fg);
+    font-family: var(--ff-mono);
+    font-size: var(--fs-xs);
+    font-weight: 700;
+  }
+
+  .langs {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .lang {
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .lang-text {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.75rem;
+  }
+
+  .lang-name {
+    font-size: var(--fs-md);
+    font-weight: 700;
+  }
+
+  .lang-level {
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .cefr {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    max-width: 22rem;
+    border: var(--bw-sm) solid var(--border);
+  }
+
+  .step {
+    padding: 0.3rem 0;
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
+    color: var(--muted);
+  }
+
+  .step + .step {
+    border-inline-start: var(--bw-sm) solid var(--border);
+  }
+
+  .step.is-on {
+    background: var(--accent-3);
+    color: var(--on-accent);
+  }
+</style>

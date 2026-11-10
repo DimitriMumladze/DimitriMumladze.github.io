@@ -1,0 +1,518 @@
+---
+import SectionHeading from './SectionHeading.astro';
+import Card from './ui/Card.astro';
+import Button from './ui/Button.astro';
+import Icon from './Icon.astro';
+import type { IconName } from './icons';
+import type { Lang } from '../data/types';
+import { t } from '../data/i18n';
+import { person, links, FORMSPREE_ENDPOINT, FORMSPREE_CONFIGURED } from '../data/site';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const s = t(lang);
+const f = s.contact.form;
+
+const direct: Array<{ icon: IconName; label: string; value: string; href: string; external?: boolean }> = [
+  { icon: 'mail', label: s.contact.emailLabel, value: person.email, href: `mailto:${person.email}` },
+  { icon: 'phone', label: s.contact.phoneLabel, value: person.phone.display, href: person.phone.href },
+  { icon: 'linkedin', label: 'LinkedIn', value: links.linkedinHandle, href: links.linkedin, external: true },
+  { icon: 'github', label: 'GitHub', value: links.githubHandle, href: links.github, external: true },
+];
+---
+
+<section id="contact" class="section" aria-labelledby="contact-title">
+  <div class="container">
+    <SectionHeading id="contact-title" num="07" title={s.sections.contact} accent={1} />
+
+    <div class="grid">
+      <div class="intro" data-reveal>
+        <p class="big">{s.contact.heading}</p>
+        <p class="lead">{s.contact.lead}</p>
+
+        <h3 class="direct-title">{s.contact.direct}</h3>
+        <ul class="direct" role="list">
+          {
+            direct.map((item, index) => (
+              <li>
+                <a
+                  class="direct-link"
+                  href={item.href}
+                  target={item.external ? '_blank' : undefined}
+                  rel={item.external ? 'noopener' : undefined}
+                >
+                  <span class={`direct-icon direct-icon--a${(index % 3) + 1}`}>
+                    <Icon name={item.icon} size={20} />
+                  </span>
+                  <span class="direct-text">
+                    <span class="direct-label">{item.label}</span>
+                    <span class="direct-value">{item.value}</span>
+                  </span>
+                  {item.external && <span class="sr-only"> {s.a11y.newTab}</span>}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div data-reveal style="--reveal-delay: 120ms">
+        <Card class="form-card">
+          <form
+            class="form"
+            action={FORMSPREE_ENDPOINT}
+            method="POST"
+            aria-labelledby="contact-form-title"
+            data-contact-form
+            data-configured={String(FORMSPREE_CONFIGURED)}
+          >
+            <h3 id="contact-form-title" class="form-title">{f.title}</h3>
+            <p class="form-note">{f.required}</p>
+
+            <div class="field">
+              <label for="cf-name">{f.name}</label>
+              <input id="cf-name" name="name" type="text" autocomplete="name" required maxlength="100" />
+              <p id="cf-name-error" class="field-error" data-error="name" hidden>
+                <Icon name="alert" size={16} />
+                {f.errors.name}
+              </p>
+            </div>
+
+            <div class="field">
+              <label for="cf-email">{f.email}</label>
+              <input
+                id="cf-email"
+                name="email"
+                type="email"
+                autocomplete="email"
+                spellcheck="false"
+                required
+                maxlength="254"
+              />
+              <p id="cf-email-error" class="field-error" data-error="email" hidden>
+                <Icon name="alert" size={16} />
+                {f.errors.email}
+              </p>
+            </div>
+
+            <div class="field">
+              <label for="cf-message">{f.message}</label>
+              <textarea id="cf-message" name="message" rows="6" required minlength="10" maxlength="5000"></textarea>
+              <p id="cf-message-error" class="field-error" data-error="message" hidden>
+                <Icon name="alert" size={16} />
+                {f.errors.message}
+              </p>
+            </div>
+
+            <!-- Honeypot: invisible to people, filled in by bots (Formspree drops those). -->
+            <div class="hp" aria-hidden="true">
+              <label for="cf-gotcha">{f.honeypot}</label>
+              <input id="cf-gotcha" type="text" name="_gotcha" tabindex="-1" autocomplete="off" />
+            </div>
+            <input type="hidden" name="_subject" value={f.subject} />
+
+            <div class="actions">
+              <Button type="submit" variant="accent-1" iconEnd="arrow-right" data-submit data-label-sending={f.sending}>
+                {f.submit}
+              </Button>
+            </div>
+
+            <div class="status" role="status" data-status-success></div>
+            <div class="status" role="alert" data-status-error></div>
+
+            <template data-template-success>
+              <p class="notice notice--success">
+                <Icon name="check" size={22} />
+                <span>{f.success}</span>
+              </p>
+            </template>
+            <template data-template-error>
+              <p class="notice notice--error">
+                <Icon name="alert" size={22} />
+                <span>
+                  {f.failure} <a href={`mailto:${person.email}`}>{person.email}</a>
+                </span>
+              </p>
+            </template>
+          </form>
+        </Card>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  type FieldName = 'name' | 'email' | 'message';
+  type Control = HTMLInputElement | HTMLTextAreaElement;
+
+  const FIELDS: readonly FieldName[] = ['name', 'email', 'message'];
+  const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const isValid: Record<FieldName, (value: string) => boolean> = {
+    name: (value) => value.trim().length > 0,
+    email: (value) => EMAIL.test(value.trim()),
+    message: (value) => value.trim().length >= 10,
+  };
+
+  function enhance(form: HTMLFormElement) {
+    // JS takes over validation: inline messages instead of the browser's bubbles.
+    form.noValidate = true;
+
+    const submit = form.querySelector<HTMLButtonElement>('[data-submit]');
+    const submitLabel = submit?.querySelector<HTMLElement>('.btn-label');
+    const idleLabel = submitLabel?.textContent?.trim() ?? '';
+    const sendingLabel = submit?.dataset.labelSending ?? idleLabel;
+    const successRegion = form.querySelector<HTMLElement>('[data-status-success]');
+    const errorRegion = form.querySelector<HTMLElement>('[data-status-error]');
+    const successTemplate = form.querySelector<HTMLTemplateElement>('[data-template-success]');
+    const errorTemplate = form.querySelector<HTMLTemplateElement>('[data-template-error]');
+    let busy = false;
+
+    const control = (name: string) => form.elements.namedItem(name) as Control | null;
+
+    function toggleError(name: FieldName, show: boolean) {
+      const input = control(name);
+      const message = form.querySelector<HTMLElement>(`[data-error="${name}"]`);
+      if (!input || !message) return;
+      message.hidden = !show;
+      if (show) {
+        input.setAttribute('aria-invalid', 'true');
+        input.setAttribute('aria-describedby', message.id);
+      } else {
+        input.removeAttribute('aria-invalid');
+        input.removeAttribute('aria-describedby');
+      }
+    }
+
+    function validate(name: FieldName): boolean {
+      const ok = isValid[name](control(name)?.value ?? '');
+      toggleError(name, !ok);
+      return ok;
+    }
+
+    // Once a field is flagged, clear the message as soon as it becomes valid.
+    for (const name of FIELDS) {
+      control(name)?.addEventListener('input', () => {
+        if (control(name)?.getAttribute('aria-invalid') === 'true') validate(name);
+      });
+    }
+
+    function setStatus(kind: 'success' | 'error' | null) {
+      successRegion?.replaceChildren();
+      errorRegion?.replaceChildren();
+      if (kind === 'success' && successTemplate) successRegion?.append(successTemplate.content.cloneNode(true));
+      if (kind === 'error' && errorTemplate) errorRegion?.append(errorTemplate.content.cloneNode(true));
+    }
+
+    function setBusy(value: boolean) {
+      busy = value;
+      form.setAttribute('aria-busy', String(value));
+      if (value) submit?.setAttribute('aria-disabled', 'true');
+      else submit?.removeAttribute('aria-disabled');
+      if (submitLabel) submitLabel.textContent = value ? sendingLabel : idleLabel;
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (busy) return;
+      setStatus(null);
+
+      const invalid = FIELDS.filter((name) => !validate(name));
+      const firstInvalid = invalid[0];
+      if (firstInvalid) {
+        control(firstInvalid)?.focus();
+        return;
+      }
+
+      // Bots fill the hidden field: pretend it worked and send nothing.
+      if (control('_gotcha')?.value) {
+        form.reset();
+        setStatus('success');
+        return;
+      }
+
+      // No Formspree ID configured yet: show the direct-email fallback.
+      if (form.dataset.configured !== 'true') {
+        setStatus('error');
+        return;
+      }
+
+      setBusy(true);
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' },
+        });
+        if (!response.ok) throw new Error(`Formspree responded with ${response.status}`);
+        form.reset();
+        setStatus('success');
+      } catch {
+        setStatus('error');
+      } finally {
+        setBusy(false);
+      }
+    });
+  }
+
+  const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+  if (form) enhance(form);
+</script>
+
+<style>
+  .grid {
+    display: grid;
+    gap: clamp(2.5rem, 1.5rem + 3vw, 4rem);
+  }
+
+  @media (min-width: 60em) {
+    .grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+      align-items: start;
+    }
+  }
+
+  /* ---- Intro & direct links ----------------------------------------------- */
+  .big {
+    font-size: var(--fs-2xl);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+
+  :lang(ka) .big {
+    font-size: var(--fs-xl);
+    line-height: 1.3;
+    letter-spacing: 0;
+  }
+
+  .lead {
+    max-width: 46ch;
+    margin-top: 1.25rem;
+    font-size: var(--fs-md);
+    line-height: 1.5;
+  }
+
+  :lang(ka) .lead {
+    font-size: 1.125rem;
+    line-height: 1.7;
+  }
+
+  .direct-title {
+    margin-top: 2.25rem;
+    font-family: var(--ff-mono);
+    font-size: var(--fs-sm);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  :lang(ka) .direct-title {
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .direct {
+    display: grid;
+    gap: 0.9rem;
+    max-width: 30rem;
+    margin-top: 1rem;
+  }
+
+  .direct-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.7rem 1rem;
+    background: var(--card);
+    border: var(--bw) solid var(--border);
+    box-shadow: var(--shadow-sm);
+    text-decoration: none;
+    transition:
+      transform var(--dur-fast) ease-out,
+      box-shadow var(--dur-fast) ease-out;
+  }
+
+  @media (hover: hover) {
+    .direct-link:hover {
+      transform: var(--press);
+      box-shadow: 0 0 0 var(--shadow-color);
+    }
+  }
+
+  .direct-link:active {
+    transform: var(--press);
+    box-shadow: 0 0 0 var(--shadow-color);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .direct-link:hover,
+    .direct-link:active {
+      transform: none;
+    }
+  }
+
+  .direct-icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    background: var(--accent-1);
+    color: var(--on-accent);
+    border: var(--bw-sm) solid var(--border);
+  }
+
+  .direct-icon--a2 {
+    background: var(--accent-2);
+  }
+
+  .direct-icon--a3 {
+    background: var(--accent-3);
+  }
+
+  .direct-text {
+    min-width: 0;
+  }
+
+  .direct-label {
+    display: block;
+    color: var(--muted);
+    font-family: var(--ff-mono);
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .direct-value {
+    display: block;
+    font-weight: 700;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  /* ---- Form ---------------------------------------------------------------- */
+  :global(.form-card) {
+    padding: clamp(1.25rem, 0.9rem + 1.6vw, 2.25rem);
+  }
+
+  .form {
+    position: relative;
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .form-title {
+    font-size: var(--fs-lg);
+    line-height: 1.2;
+  }
+
+  .form-note {
+    margin-top: -0.75rem;
+    color: var(--muted);
+    font-size: var(--fs-sm);
+  }
+
+  .field {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .field label {
+    font-weight: 700;
+  }
+
+  .field input,
+  .field textarea {
+    width: 100%;
+    padding: 0.75rem 0.9rem;
+    background: var(--bg);
+    color: var(--fg);
+    border: var(--bw) solid var(--border);
+    border-radius: var(--radius);
+    font-size: max(1rem, var(--fs-base));
+    line-height: 1.4;
+    transition: box-shadow var(--dur-fast) ease-out;
+  }
+
+  .field textarea {
+    min-height: 9.5rem;
+    resize: vertical;
+  }
+
+  .field input:focus-visible,
+  .field textarea:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .field [aria-invalid='true'] {
+    box-shadow: 5px 5px 0 var(--accent-2);
+  }
+
+  .field-error {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    justify-self: start;
+    padding: 0.3rem 0.6rem;
+    background: var(--accent-2);
+    color: var(--on-accent);
+    border: var(--bw-sm) solid var(--border);
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    line-height: 1.35;
+  }
+
+  .field-error[hidden] {
+    display: none;
+  }
+
+  /* Visually hidden but present for bots (display:none fields are often skipped). */
+  .hp {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .actions {
+    margin-top: 0.25rem;
+  }
+
+  .status:empty {
+    display: contents;
+  }
+
+  .notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.9rem 1rem;
+    color: var(--on-accent);
+    border: var(--bw) solid var(--border);
+    box-shadow: var(--shadow-sm);
+    font-weight: 600;
+    line-height: 1.45;
+  }
+
+  .notice :global(svg) {
+    margin-top: 0.05rem;
+  }
+
+  .notice--success {
+    background: var(--accent-1);
+  }
+
+  .notice--error {
+    background: var(--accent-2);
+  }
+
+  .notice a {
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+</style>

@@ -1,0 +1,84 @@
+---
+import SectionHeading from './SectionHeading.astro';
+import Card from './ui/Card.astro';
+import TagList from './ui/TagList.astro';
+import type { Lang } from '../data/types';
+import { t } from '../data/i18n';
+import { skills } from '../data/skills';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const s = t(lang);
+---
+
+<section id="skills" class="section" aria-labelledby="skills-title">
+  <div class="container">
+    <SectionHeading id="skills-title" num="04" title={s.sections.skills} accent={1} />
+
+    <ul class="grid" role="list">
+      {
+        skills.map((group, index) => (
+          <li class="item" data-reveal style={`--reveal-delay: ${(index % 4) * 70}ms`}>
+            <Card class="skill">
+              <h3 class={`skill-title skill-title--a${group.accent} caps`}>{group.title[lang]}</h3>
+              <TagList
+                class="skill-tags"
+                tags={group.items.map((item) => (typeof item === 'string' ? item : item[lang]))}
+              />
+            </Card>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(1.5rem, 1rem + 1.5vw, 2rem);
+  }
+
+  .item {
+    display: flex;
+    flex: 1 1 16rem;
+    min-width: 0;
+  }
+
+  .item :global(.skill) {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .skill-title {
+    padding: 0.65rem 1.1rem;
+    background: var(--accent-1);
+    color: var(--on-accent);
+    border-bottom: var(--bw) solid var(--border);
+    font-size: var(--fs-md);
+    line-height: 1.25;
+    letter-spacing: 0.01em;
+  }
+
+  .skill-title--a2 {
+    background: var(--accent-2);
+  }
+
+  .skill-title--a3 {
+    background: var(--accent-3);
+  }
+
+  :lang(ka) .skill-title {
+    font-size: 1.125rem;
+    letter-spacing: 0;
+  }
+
+  .item :global(.skill-tags) {
+    padding: 1.1rem;
+  }
+</style>

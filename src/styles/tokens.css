@@ -1,0 +1,125 @@
+/* ==========================================================================
+   Design tokens
+   Light = "Classic Pop" (default) · Dark = "Neon Orange"
+   The theme is set on <html data-theme> by an inline script before first paint.
+   Without JS (no data-theme) the OS preference is used.
+   Text on accent blocks is always black (--on-accent) in both themes:
+   black on #FFD93D 15.2:1 · #FF6B9D 7.8:1 · #4D96FF 7.1:1 · #FF4D00 6.3:1 · #00E5FF 13.7:1
+   ========================================================================== */
+
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #fffdf5;
+  --fg: #000000;
+  --border: #000000;
+  --card: #ffffff;
+  --accent-1: #ffd93d;
+  --accent-2: #ff6b9d;
+  --accent-3: #4d96ff;
+  --shadow-color: #000000;
+  --muted: #3d3d3d; /* 10.7:1 on --bg */
+  --focus: #000000;
+  --dot: rgb(0 0 0 / 0.17);
+  --inverse-bg: #000000;
+  --inverse-fg: #fffdf5;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0f0f0f;
+  --fg: #ffffff;
+  --border: #ffffff;
+  --card: #1a1a1a;
+  --accent-1: #ff4d00;
+  --accent-2: #00e5ff;
+  --accent-3: #ff4d00;
+  --shadow-color: #ff4d00;
+  --muted: #c8c8c8; /* 11.4:1 on --bg */
+  --focus: #00e5ff;
+  --dot: rgb(255 255 255 / 0.13);
+  --inverse-bg: #ffffff;
+  --inverse-fg: #0f0f0f;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --bg: #0f0f0f;
+    --fg: #ffffff;
+    --border: #ffffff;
+    --card: #1a1a1a;
+    --accent-1: #ff4d00;
+    --accent-2: #00e5ff;
+    --accent-3: #ff4d00;
+    --shadow-color: #ff4d00;
+    --muted: #c8c8c8;
+    --focus: #00e5ff;
+    --dot: rgb(255 255 255 / 0.13);
+    --inverse-bg: #ffffff;
+    --inverse-fg: #0f0f0f;
+  }
+}
+
+:root {
+  --on-accent: #000000;
+
+  /* Borders, radius, shadows (hard, no blur) */
+  --bw: 3px;
+  --bw-sm: 2px;
+  --radius: 0;
+  --shadow: 6px 6px 0 var(--shadow-color);
+  --shadow-sm: 3px 3px 0 var(--shadow-color);
+  --shadow-lg: 10px 10px 0 var(--shadow-color);
+  --press: translate(3px, 3px);
+
+  /* Type families (fonts are registered by Astro's Fonts API) */
+  --ff-body: var(--font-sans);
+  --ff-mono: var(--font-mono);
+  --ff-logo: var(--font-display);
+  --ff-name: var(--font-display);
+
+  /* Type scale */
+  --fs-xs: 0.8125rem;
+  --fs-sm: 0.9375rem;
+  --fs-base: 1.0625rem;
+  --fs-md: 1.25rem;
+  --fs-lg: clamp(1.375rem, 1.15rem + 0.9vw, 1.75rem);
+  --fs-xl: clamp(1.75rem, 1.3rem + 1.9vw, 2.75rem);
+  --fs-2xl: clamp(2.125rem, 1.5rem + 3vw, 3.75rem);
+  --fs-hero: clamp(3rem, 2rem + 6.5vw, 7rem);
+  --lh-body: 1.6;
+
+  /* Space */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --gutter: clamp(1rem, 4vw, 2rem);
+  --container: 75rem;
+  --header-h: 4.5rem;
+
+  /* Motion */
+  --dur-fast: 120ms;
+  --dur-reveal: 600ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Georgian pages: Noto Sans Georgian renders Georgian glyphs (its @font-face only covers
+   the Georgian unicode-range), Latin runs (C#, ASP.NET…) stay in Space Grotesk. */
+:root:lang(ka) {
+  --ff-body: var(--font-georgian), var(--font-sans);
+  --ff-mono: var(--font-georgian), var(--font-mono);
+  --ff-name: var(--font-display-ka), var(--font-georgian), var(--font-sans);
+  --lh-body: 1.75;
+}
+
+@media (max-width: 40rem) {
+  :root {
+    --header-h: 4rem;
+  }
+}

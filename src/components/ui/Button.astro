@@ -1,0 +1,167 @@
+---
+import Icon from '../Icon.astro';
+import type { IconName } from '../icons';
+
+type Variant = 'accent-1' | 'accent-2' | 'accent-3' | 'card';
+
+interface Props {
+  /** Renders an <a> when set, otherwise a <button>. */
+  href?: string;
+  type?: 'button' | 'submit';
+  variant?: Variant;
+  size?: 'md' | 'sm' | 'icon';
+  /** Icon before the label. */
+  icon?: IconName;
+  /** Icon after the label. */
+  iconEnd?: IconName;
+  /** Accessible name for icon-only buttons (rendered as visually hidden text). */
+  label?: string;
+  /** Opens in a new tab. Pass the localized "(opens in a new tab)" note via `newTabNote`. */
+  external?: boolean;
+  newTabNote?: string;
+  download?: boolean | string;
+  hreflang?: string;
+  lang?: string;
+  class?: string;
+  [key: `data-${string}`]: string | undefined;
+  [key: `aria-${string}`]: string | undefined;
+}
+
+const {
+  href,
+  type = 'button',
+  variant = 'card',
+  size = 'md',
+  icon,
+  iconEnd,
+  label,
+  external = false,
+  newTabNote,
+  download,
+  class: className,
+  ...rest
+} = Astro.props;
+
+const classes = ['btn', `btn--${variant}`, `btn--${size}`, className];
+const iconSize = size === 'sm' ? 18 : 20;
+---
+
+{
+  href ? (
+    <a
+      class:list={classes}
+      href={href}
+      target={external ? '_blank' : undefined}
+      rel={external ? 'noopener' : undefined}
+      download={download}
+      {...rest}
+    >
+      {icon && <Icon name={icon} size={iconSize} />}
+      {label ? (
+        <span class="sr-only">{label}</span>
+      ) : (
+        <span class="btn-label">
+          <slot />
+        </span>
+      )}
+      {iconEnd && <Icon name={iconEnd} size={iconSize} />}
+      {external && newTabNote && <span class="sr-only"> {newTabNote}</span>}
+    </a>
+  ) : (
+    <button class:list={classes} type={type} {...rest}>
+      {icon && <Icon name={icon} size={iconSize} />}
+      {label ? (
+        <span class="sr-only">{label}</span>
+      ) : (
+        <span class="btn-label">
+          <slot />
+        </span>
+      )}
+      {iconEnd && <Icon name={iconEnd} size={iconSize} />}
+    </button>
+  )
+}
+
+<style>
+  .btn {
+    --btn-bg: var(--card);
+    --btn-fg: var(--fg);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6em;
+    min-height: 3rem;
+    padding: 0.7em 1.2em;
+    background: var(--btn-bg);
+    color: var(--btn-fg);
+    border: var(--bw) solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    font-family: var(--ff-body);
+    font-size: var(--fs-base);
+    font-weight: 700;
+    line-height: 1.15;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      transform var(--dur-fast) ease-out,
+      box-shadow var(--dur-fast) ease-out;
+  }
+
+  .btn--accent-1 {
+    --btn-bg: var(--accent-1);
+    --btn-fg: var(--on-accent);
+  }
+
+  .btn--accent-2 {
+    --btn-bg: var(--accent-2);
+    --btn-fg: var(--on-accent);
+  }
+
+  .btn--accent-3 {
+    --btn-bg: var(--accent-3);
+    --btn-fg: var(--on-accent);
+  }
+
+  .btn--sm {
+    min-height: 2.75rem;
+    padding: 0.5em 0.9em;
+    font-size: var(--fs-sm);
+  }
+
+  .btn--icon {
+    width: 3rem;
+    padding: 0;
+  }
+
+  /* "Press": the button sinks into its shadow. */
+  @media (hover: hover) {
+    .btn:hover {
+      transform: var(--press);
+      box-shadow: var(--shadow-sm);
+    }
+  }
+
+  .btn:active {
+    transform: var(--press);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 4px;
+  }
+
+  .btn[aria-disabled='true'] {
+    cursor: progress;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .btn:hover,
+    .btn:active {
+      transform: none;
+    }
+  }
+</style>

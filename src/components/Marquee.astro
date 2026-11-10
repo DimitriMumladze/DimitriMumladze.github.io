@@ -1,0 +1,169 @@
+---
+import Icon from './Icon.astro';
+import type { Lang } from '../data/types';
+import { t } from '../data/i18n';
+import { marquee } from '../data/site';
+
+interface Props {
+  lang: Lang;
+}
+
+const s = t(Astro.props.lang);
+---
+
+<div class="marquee" data-marquee>
+  <div class="viewport">
+    <div class="track">
+      <ul class="group" role="list" aria-label={s.marquee.label}>
+        {marquee.map((item) => <li>{item}</li>)}
+      </ul>
+      <!-- Second copy makes the loop seamless; hidden from assistive tech. -->
+      <ul class="group" role="list" aria-hidden="true">
+        {marquee.map((item) => <li>{item}</li>)}
+      </ul>
+    </div>
+  </div>
+  <button type="button" class="toggle js-only" aria-pressed="false" data-marquee-toggle>
+    <span class="sr-only">{s.marquee.pause}</span>
+    <Icon name="pause" size={18} class="i-pause" />
+    <Icon name="play" size={18} class="i-play" />
+  </button>
+</div>
+
+<script>
+  const marquee = document.querySelector<HTMLElement>('[data-marquee]');
+  const toggle = marquee?.querySelector<HTMLButtonElement>('[data-marquee-toggle]');
+
+  toggle?.addEventListener('click', () => {
+    const paused = toggle.getAttribute('aria-pressed') !== 'true';
+    toggle.setAttribute('aria-pressed', String(paused));
+    marquee?.toggleAttribute('data-paused', paused);
+  });
+</script>
+
+<style>
+  .marquee {
+    display: flex;
+    align-items: stretch;
+    background: var(--accent-2);
+    color: var(--on-accent);
+    border-block: var(--bw) solid var(--border);
+    overflow: hidden;
+  }
+
+  .viewport {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .track {
+    display: flex;
+    width: max-content;
+    animation: marquee 48s linear infinite;
+  }
+
+  .group {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 0.85rem 1.5rem 0.85rem 0;
+    margin: 0;
+  }
+
+  .group li {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    font-size: var(--fs-md);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  /* Diamond separator after every item (also after the last one, for a seamless loop). */
+  .group li::after {
+    content: '';
+    flex: none;
+    width: 0.55rem;
+    height: 0.55rem;
+    background: currentColor;
+    transform: rotate(45deg);
+  }
+
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .marquee[data-paused] .track {
+    animation-play-state: paused;
+  }
+
+  @media (hover: hover) {
+    .viewport:hover .track {
+      animation-play-state: paused;
+    }
+  }
+
+  .toggle {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 3.25rem;
+    padding: 0;
+    background: var(--card);
+    color: var(--fg);
+    border: 0;
+    border-inline-start: var(--bw) solid var(--border);
+  }
+
+  .toggle :global(svg) {
+    grid-area: 1 / 1;
+  }
+
+  .toggle :global(.i-play),
+  .toggle[aria-pressed='true'] :global(.i-pause) {
+    display: none;
+  }
+
+  .toggle[aria-pressed='true'] :global(.i-play) {
+    display: block;
+  }
+
+  @media (hover: hover) {
+    .toggle:hover {
+      background: var(--accent-1);
+      color: var(--on-accent);
+    }
+  }
+
+  .toggle:focus-visible {
+    outline-offset: -6px;
+  }
+
+  /* Reduced motion: a static, wrapping row; no duplicate, no pause button. */
+  @media (prefers-reduced-motion: reduce) {
+    .track {
+      width: auto;
+      animation: none;
+    }
+
+    .group {
+      flex: 1;
+      flex-wrap: wrap;
+      justify-content: center;
+      row-gap: 0.6rem;
+      padding: 1rem var(--gutter);
+    }
+
+    .group[aria-hidden='true'],
+    .toggle {
+      display: none;
+    }
+  }
+</style>

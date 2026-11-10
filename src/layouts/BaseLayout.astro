@@ -1,0 +1,171 @@
+---
+import { Font } from 'astro:assets';
+import '../styles/tokens.css';
+import '../styles/global.css';
+import type { Lang } from '../data/types';
+import { SITE_URL, person, links } from '../data/site';
+import { t, localePath } from '../data/i18n';
+
+interface Props {
+  lang: Lang;
+  /** 'home' adds hreflang alternates and the remembered-language redirect. */
+  page?: 'home' | 'notFound';
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+}
+
+const { lang, page = 'home', noindex = false } = Astro.props;
+const s = t(lang);
+const title = Astro.props.title ?? s.meta.title;
+const description = Astro.props.description ?? s.meta.description;
+
+const canonical = new URL(page === 'home' ? localePath(lang) : Astro.url.pathname, SITE_URL).href;
+const urlEn = new URL(localePath('en'), SITE_URL).href;
+const urlKa = new URL(localePath('ka'), SITE_URL).href;
+const ogImage = new URL(lang === 'ka' ? '/og-image-ka.png' : '/og-image.png', SITE_URL).href;
+const themeColors = { light: '#FFFDF5', dark: '#0F0F0F' };
+
+const isHome = page === 'home';
+const needsGeorgian = lang === 'ka' || page === 'notFound';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: person.name.en,
+  alternateName: person.name.ka,
+  jobTitle: person.role.en,
+  description: t('en').meta.description,
+  url: urlEn,
+  image: new URL('/og-image.png', SITE_URL).href,
+  email: `mailto:${person.email}`,
+  telephone: person.phone.href.replace('tel:', ''),
+  address: { '@type': 'PostalAddress', addressLocality: 'Tbilisi', addressCountry: 'GE' },
+  worksFor: { '@type': 'Organization', name: '63BITS' },
+  alumniOf: { '@type': 'CollegeOrUniversity', name: 'International Black Sea University' },
+  knowsLanguage: ['ka', 'en'],
+  knowsAbout: [
+    'C#',
+    '.NET',
+    'ASP.NET Core',
+    'Entity Framework Core',
+    'SQL Server',
+    'PostgreSQL',
+    'RESTful APIs',
+    'Clean Architecture',
+    'Docker',
+    'OAuth 2.0',
+  ],
+  sameAs: [links.github, links.linkedin],
+};
+// Escape "<" so the JSON can never close the <script> element early.
+const jsonLdText = JSON.stringify(jsonLd).replace(/</g, '\\u003c');
+---
+
+<!doctype html>
+<html lang={lang} dir="ltr" class="no-js" data-page={page}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content={themeColors.light} data-theme-color />
+    <!--
+      Runs before first paint: picks the theme (saved choice, else the OS preference) so
+      there is no flash of the wrong theme, and sends returning Georgian visitors from / to /ka/.
+    -->
+    <script is:inline define:vars={{ themeColors }}>
+      (function () {
+        var root = document.documentElement;
+        root.classList.remove('no-js');
+        root.classList.add('js');
+        var store = {};
+        try {
+          store.theme = localStorage.getItem('theme');
+          store.lang = localStorage.getItem('lang');
+        } catch (e) {}
+        var theme = store.theme === 'light' || store.theme === 'dark' ? store.theme : null;
+        if (!theme) {
+          theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        root.setAttribute('data-theme', theme);
+        var meta = document.querySelector('meta[data-theme-color]');
+        if (meta) meta.setAttribute('content', themeColors[theme]);
+        if (root.getAttribute('data-page') === 'home' && root.lang === 'en' && store.lang === 'ka') {
+          location.replace('/ka/' + location.hash);
+        }
+      })();
+    </script>
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    {
+      isHome && (
+        <>
+          <link rel="alternate" hreflang="en" href={urlEn} />
+          <link rel="alternate" hreflang="ka" href={urlKa} />
+          <link rel="alternate" hreflang="x-default" href={urlEn} />
+        </>
+      )
+    }
+
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={person.name[lang]} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {/* Pages without an indexable URL of their own (the 404) leave og:url to the crawler. */}
+    {!noindex && <meta property="og:url" content={canonical} />}
+    <meta property="og:locale" content={s.meta.ogLocale} />
+    <meta property="og:locale:alternate" content={t(lang === 'en' ? 'ka' : 'en').meta.ogLocale} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={s.meta.ogImageAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={s.meta.ogImageAlt} />
+
+    <Font cssVariable="--font-sans" preload={lang === 'en'} />
+    <Font cssVariable="--font-mono" />
+    <Font cssVariable="--font-display" preload={lang === 'en' && isHome} />
+    {needsGeorgian && <Font cssVariable="--font-georgian" preload={lang === 'ka'} />}
+    {lang === 'ka' && isHome && <Font cssVariable="--font-display-ka" preload />}
+
+    {isHome && <script is:inline type="application/ld+json" set:html={jsonLdText} />}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{s.a11y.skipLink}</a>
+    <slot />
+
+    <script>
+      // Fade/slide sections in as they scroll into view. CSS only hides [data-reveal]
+      // when JS runs and the user allows motion, so content is never lost.
+      const targets = document.querySelectorAll<HTMLElement>('[data-reveal]');
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (reduceMotion || !('IntersectionObserver' in window)) {
+        targets.forEach((el) => el.classList.add('is-revealed'));
+      } else {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              entry.target.classList.add('is-revealed');
+              observer.unobserve(entry.target);
+            }
+          },
+          { rootMargin: '0px 0px -8% 0px', threshold: 0.08 },
+        );
+        targets.forEach((el) => observer.observe(el));
+      }
+    </script>
+  </body>
+</html>

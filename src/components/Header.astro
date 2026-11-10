@@ -1,0 +1,356 @@
+---
+import Icon from './Icon.astro';
+import LangToggle from './LangToggle.astro';
+import ThemeToggle from './ThemeToggle.astro';
+import type { Lang } from '../data/types';
+import { t } from '../data/i18n';
+import { links, person } from '../data/site';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const s = t(lang);
+const sections = ['about', 'experience', 'projects', 'skills', 'certificates', 'contact'] as const;
+---
+
+<header class="site-header" id="top" data-header>
+  <div class="container bar">
+    <a class="logo" href="#top">
+      <span aria-hidden="true">{person.initials}</span>
+      <span class="sr-only">{s.a11y.logo}</span>
+    </a>
+
+    <nav class="nav" id="site-nav" aria-label={s.a11y.mainNav} data-nav>
+      <ul class="nav-list" role="list">
+        {
+          sections.map((id) => (
+            <li>
+              <a class="nav-link" href={`#${id}`} data-section-link={id}>
+                {s.nav[id]}
+              </a>
+            </li>
+          ))
+        }
+        <li>
+          <a class="nav-link nav-link--ext" href={links.github} target="_blank" rel="noopener">
+            {s.nav.github}
+            <Icon name="arrow-up-right" size={16} />
+            <span class="sr-only"> {s.a11y.newTab}</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="tools">
+      <LangToggle lang={lang} />
+      <ThemeToggle lang={lang} />
+      <button
+        type="button"
+        class="menu-btn js-only"
+        aria-expanded="false"
+        aria-controls="site-nav"
+        data-menu-button
+        data-label-open={s.a11y.openMenu}
+        data-label-close={s.a11y.closeMenu}
+      >
+        <span class="sr-only" data-menu-label>{s.a11y.openMenu}</span>
+        <Icon name="menu" size={22} class="i-open" />
+        <Icon name="close" size={22} class="i-close" />
+      </button>
+    </div>
+  </div>
+</header>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  const button = header?.querySelector<HTMLButtonElement>('[data-menu-button]');
+  const label = button?.querySelector<HTMLElement>('[data-menu-label]');
+  const nav = header?.querySelector<HTMLElement>('[data-nav]');
+  const desktop = window.matchMedia('(min-width: 72em)');
+
+  /* ---- Mobile menu (disclosure) ------------------------------------------ */
+  const isOpen = () => button?.getAttribute('aria-expanded') === 'true';
+
+  function setOpen(open: boolean) {
+    if (!header || !button) return;
+    button.setAttribute('aria-expanded', String(open));
+    if (label) label.textContent = (open ? button.dataset.labelClose : button.dataset.labelOpen) ?? '';
+    header.toggleAttribute('data-menu-open', open);
+  }
+
+  button?.addEventListener('click', () => {
+    const open = !isOpen();
+    setOpen(open);
+    // The links sit before the button in the DOM, so take focus into the panel;
+    // Tab then continues to the language/theme switches and back to this button.
+    if (open) nav?.querySelector<HTMLAnchorElement>('a')?.focus();
+  });
+
+  // Close when keyboard focus leaves the header entirely.
+  header?.addEventListener('focusout', (event) => {
+    const next = event.relatedTarget as Node | null;
+    if (isOpen() && next && !header.contains(next)) setOpen(false);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && isOpen()) {
+      setOpen(false);
+      button?.focus();
+    }
+  });
+
+  // Close after choosing a link, or when clicking anywhere outside the header.
+  nav?.addEventListener('click', (event) => {
+    if ((event.target as Element).closest('a')) setOpen(false);
+  });
+  document.addEventListener('click', (event) => {
+    if (isOpen() && header && !header.contains(event.target as Node)) setOpen(false);
+  });
+  desktop.addEventListener('change', (event) => {
+    if (event.matches) setOpen(false);
+  });
+
+  /* ---- Active section highlight ------------------------------------------ */
+  const sectionLinks = new Map<string, HTMLAnchorElement>();
+  header?.querySelectorAll<HTMLAnchorElement>('[data-section-link]').forEach((link) => {
+    sectionLinks.set(link.dataset.sectionLink ?? '', link);
+  });
+
+  // Every section with an id counts (also those without a nav link, e.g. #education),
+  // so the language switch can keep the visitor's place.
+  const sections = Array.from(document.querySelectorAll<HTMLElement>('main section[id]'));
+  let current = '';
+
+  function setCurrent(id: string) {
+    if (id === current) return;
+    current = id;
+    sectionLinks.forEach((link, linkId) => {
+      if (linkId === id) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
+    });
+  }
+
+  if ('IntersectionObserver' in window && sections.length) {
+    const visible = new Set<string>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) visible.add(entry.target.id);
+          else visible.delete(entry.target.id);
+        }
+        // The first section (in page order) crossing the band near the top wins.
+        const active = sections.find((section) => visible.has(section.id));
+        setCurrent(active?.id ?? '');
+      },
+      { rootMargin: '-30% 0px -60% 0px' },
+    );
+    sections.forEach((section) => observer.observe(section));
+  }
+
+  /* ---- Language switch: keep the current section, remember the choice ---- */
+  document.querySelectorAll<HTMLAnchorElement>('[data-lang-link]').forEach((link) => {
+    link.addEventListener('click', () => {
+      try {
+        localStorage.setItem('lang', link.dataset.langLink ?? 'en');
+      } catch {
+        /* storage unavailable */
+      }
+      const base = link.getAttribute('href')?.split('#')[0] ?? '/';
+      link.setAttribute('href', current ? `${base}#${current}` : base);
+    });
+  });
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--bg);
+    border-bottom: var(--bw) solid var(--border);
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-height: var(--header-h);
+  }
+
+  .logo {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    background: var(--accent-1);
+    color: var(--on-accent);
+    border: var(--bw) solid var(--border);
+    box-shadow: var(--shadow-sm);
+    font-family: var(--ff-logo);
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    text-decoration: none;
+    transform: rotate(-4deg);
+    transition:
+      transform var(--dur-fast) ease-out,
+      box-shadow var(--dur-fast) ease-out;
+  }
+
+  @media (hover: hover) {
+    .logo:hover {
+      transform: rotate(-4deg) translate(3px, 3px);
+      box-shadow: 0 0 0 var(--shadow-color);
+    }
+  }
+
+  .nav {
+    margin-inline-start: auto;
+  }
+
+  .nav-list {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    padding: 0.4rem 0.6rem;
+    border: var(--bw-sm) solid transparent;
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    line-height: 1.2;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  @media (hover: hover) {
+    .nav-link:hover {
+      border-color: var(--border);
+      background: var(--card);
+    }
+  }
+
+  .nav-link[aria-current] {
+    background: var(--accent-1);
+    color: var(--on-accent);
+    border-color: var(--border);
+  }
+
+  .tools {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .menu-btn {
+    display: none;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    background: var(--card);
+    color: var(--fg);
+    border: var(--bw) solid var(--border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .menu-btn :global(svg) {
+    grid-area: 1 / 1;
+  }
+
+  .menu-btn :global(.i-close),
+  .menu-btn[aria-expanded='true'] :global(.i-open) {
+    display: none;
+  }
+
+  .menu-btn[aria-expanded='true'] :global(.i-close) {
+    display: block;
+  }
+
+  .menu-btn[aria-expanded='true'] {
+    background: var(--accent-2);
+    color: var(--on-accent);
+  }
+
+  /* ---- Compact header: links move into a menu panel ---------------------- */
+  @media (max-width: 71.99em) {
+    .tools {
+      margin-inline-start: auto;
+    }
+
+    :global(.js) .menu-btn {
+      display: grid;
+    }
+
+    :global(.js) .nav {
+      position: absolute;
+      inset: 100% 0 auto;
+      display: none;
+      max-height: calc(100dvh - var(--header-h));
+      overflow-y: auto;
+      background: var(--bg);
+      border-bottom: var(--bw) solid var(--border);
+      box-shadow: 0 6px 0 var(--shadow-color);
+    }
+
+    :global(.js) .site-header[data-menu-open] .nav {
+      display: block;
+    }
+
+    :global(.js) .nav-list {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      width: min(100% - 2 * var(--gutter), var(--container));
+      margin-inline: auto;
+      padding-block: var(--space-3) var(--space-5);
+    }
+
+    :global(.js) .nav-link {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0.9rem 0.25rem;
+      border: 0;
+      border-bottom: var(--bw-sm) solid var(--border);
+      font-size: var(--fs-md);
+    }
+
+    :global(.js) .nav-link[aria-current] {
+      padding-inline: 0.75rem;
+    }
+
+    /* Without JS the links simply wrap onto a second row. */
+    :global(.no-js) .bar {
+      flex-wrap: wrap;
+      padding-block: var(--space-3);
+    }
+
+    :global(.no-js) .nav {
+      order: 3;
+      width: 100%;
+      margin: 0;
+    }
+
+    :global(.no-js) .nav-list {
+      flex-wrap: wrap;
+    }
+  }
+
+  @media (max-width: 22.5em) {
+    .bar {
+      gap: var(--space-2);
+    }
+
+    .tools {
+      gap: var(--space-2);
+    }
+  }
+</style>

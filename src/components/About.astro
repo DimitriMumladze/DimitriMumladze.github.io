@@ -1,0 +1,136 @@
+---
+import SectionHeading from './SectionHeading.astro';
+import Card from './ui/Card.astro';
+import type { Lang } from '../data/types';
+import { t } from '../data/i18n';
+import { stats } from '../data/site';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const s = t(lang);
+const tilts = [-1.5, 1, -0.75];
+---
+
+<section id="about" class="section" aria-labelledby="about-title">
+  <div class="container">
+    <SectionHeading id="about-title" num="01" title={s.sections.about} accent={1} />
+
+    <div class="about-grid">
+      <div class="copy" data-reveal>
+        {s.about.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+      </div>
+
+      <div class="stats-wrap" data-reveal style="--reveal-delay: 120ms">
+        <h3 class="sr-only">{s.about.statsLabel}</h3>
+        <ul class="stats" role="list">
+          {
+            stats.map((stat, index) => (
+              <Card as="li" fill={stat.accent} class="stat" style={`--tilt: ${tilts[index] ?? 0}deg`}>
+                {stat.prefix?.[lang] && <span class="prefix caps">{stat.prefix[lang]}</span>}
+                <span class="value">{stat.value}</span>
+                <span class="label">{stat.label[lang]}</span>
+              </Card>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about-grid {
+    display: grid;
+    gap: clamp(2.5rem, 1.5rem + 3vw, 4rem);
+  }
+
+  .copy {
+    display: grid;
+    gap: 1.25rem;
+    max-width: 62ch;
+  }
+
+  .copy p:first-child {
+    font-size: var(--fs-md);
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  :lang(ka) .copy p:first-child {
+    font-size: 1.125rem;
+    line-height: 1.75;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+    gap: 1.5rem;
+  }
+
+  .stats :global(.stat) {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 1.25rem 1.5rem;
+    transform: rotate(var(--tilt));
+  }
+
+  .prefix {
+    font-family: var(--ff-mono);
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  .value {
+    font-size: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+
+  .label {
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  @media (min-width: 64em) {
+    .about-grid {
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+      align-items: center;
+    }
+
+    .copy {
+      gap: 1.5rem;
+    }
+
+    .copy p:first-child {
+      font-size: clamp(1.4rem, 0.9rem + 0.9vw, 1.75rem);
+      line-height: 1.4;
+    }
+
+    .copy p + p {
+      font-size: var(--fs-md);
+      line-height: 1.6;
+    }
+
+    :lang(ka) .copy p:first-child {
+      font-size: 1.3rem;
+      line-height: 1.7;
+    }
+
+    :lang(ka) .copy p + p {
+      font-size: 1.125rem;
+      line-height: 1.75;
+    }
+
+    .stats {
+      grid-template-columns: 1fr;
+      padding-inline: 0.5rem;
+    }
+  }
+</style>

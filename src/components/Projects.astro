@@ -1,0 +1,52 @@
+---
+import SectionHeading from './SectionHeading.astro';
+import ProjectCard from './ProjectCard.astro';
+import Button from './ui/Button.astro';
+import type { Accent, Lang } from '../data/types';
+import { t } from '../data/i18n';
+import { projects } from '../data/projects';
+import { links } from '../data/site';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const s = t(lang);
+// Header strips cycle through the accents (a checkerboard in the 2-column grid).
+const accents: Accent[] = [1, 2, 2, 3];
+---
+
+<section id="projects" class="section" aria-labelledby="projects-title">
+  <div class="container">
+    <SectionHeading id="projects-title" num="03" title={s.sections.projects} accent={3} intro={s.projects.intro} />
+
+    <ul class="grid" role="list">
+      {
+        projects.map((project, index) => (
+          <li data-reveal style={`--reveal-delay: ${(index % 2) * 100}ms`}>
+            <ProjectCard project={project} lang={lang} accent={accents[index % accents.length] ?? 1} />
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="more">
+      <Button href={links.github} external newTabNote={s.a11y.newTab} icon="github" iconEnd="arrow-up-right">
+        {s.projects.moreOnGitHub}
+      </Button>
+    </p>
+  </div>
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr));
+    gap: clamp(1.75rem, 1rem + 2vw, 2.5rem);
+  }
+
+  .more {
+    margin-top: clamp(2rem, 1.5rem + 2vw, 3rem);
+  }
+</style>

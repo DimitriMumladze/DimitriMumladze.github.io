@@ -1,0 +1,80 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/ui/Button.astro';
+import { t, localePath } from '../data/i18n';
+
+// GitHub Pages serves this for every unknown URL, so it speaks both languages.
+const en = t('en').notFound;
+const ka = t('ka').notFound;
+---
+
+<BaseLayout lang="en" page="notFound" title={`404 — ${en.title}`} description={en.text} noindex>
+  <main id="main" class="nf pattern-dots" tabindex="-1">
+    <div class="container inner">
+      <p class="code" aria-hidden="true">404</p>
+      <h1 class="title">
+        {en.title}
+        <span class="title-ka" lang="ka">{ka.title}</span>
+      </h1>
+      <p class="text">{en.text}</p>
+      <p class="text" lang="ka">{ka.text}</p>
+      <div class="actions">
+        <Button href={localePath('en')} variant="accent-1" icon="arrow-right">{en.home}</Button>
+        <Button href={localePath('ka')} variant="card" hreflang="ka" lang="ka">{ka.home}</Button>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .nf {
+    display: grid;
+    align-items: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding-block: 4rem;
+  }
+
+  .inner {
+    display: grid;
+    justify-items: start;
+    gap: 1.25rem;
+  }
+
+  .code {
+    padding: 0.05em 0.25em;
+    background: var(--accent-1);
+    color: var(--on-accent);
+    border: var(--bw) solid var(--border);
+    box-shadow: var(--shadow-lg);
+    font-family: var(--font-display);
+    font-size: clamp(5rem, 3rem + 12vw, 11rem);
+    font-weight: 700;
+    line-height: 1;
+    transform: rotate(-3deg);
+  }
+
+  .title {
+    display: grid;
+    gap: 0.4rem;
+    margin-top: 1.5rem;
+    font-size: var(--fs-2xl);
+  }
+
+  .title-ka {
+    font-size: var(--fs-lg);
+    line-height: 1.4;
+  }
+
+  .text {
+    max-width: 50ch;
+    font-size: var(--fs-md);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+</style>

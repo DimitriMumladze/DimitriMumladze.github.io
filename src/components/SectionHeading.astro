@@ -1,0 +1,89 @@
+---
+import type { Accent } from '../data/types';
+
+interface Props {
+  /** id of the <h2>, referenced by the section's aria-labelledby. */
+  id: string;
+  num: string;
+  title: string;
+  accent?: Accent;
+  intro?: string;
+}
+
+const { id, num, title, accent = 1, intro } = Astro.props;
+---
+
+<div class="section-head">
+  <h2 id={id} class="section-title">
+    <span class="num" aria-hidden="true">{num}</span>
+    <span class:list={['title', 'caps', `title--a${accent}`]}>{title}</span>
+  </h2>
+  {intro && <p class="intro">{intro}</p>}
+</div>
+
+<style>
+  .section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-4) var(--space-6);
+    margin-bottom: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+  }
+
+  .section-title {
+    display: flex;
+    align-items: stretch;
+    max-width: 100%;
+    font-size: var(--fs-2xl);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  .num {
+    display: grid;
+    place-items: center;
+    padding: 0 0.5em;
+    background: var(--inverse-bg);
+    color: var(--inverse-fg);
+    border: var(--bw) solid var(--border);
+    border-right: 0;
+    font-family: var(--ff-mono);
+    font-size: var(--fs-md);
+    letter-spacing: 0;
+  }
+
+  .title {
+    min-width: 0;
+    padding: 0.14em 0.3em 0.1em;
+    background: var(--accent-1);
+    color: var(--on-accent);
+    border: var(--bw) solid var(--border);
+    box-shadow: var(--shadow);
+  }
+
+  .title--a2 {
+    background: var(--accent-2);
+  }
+
+  .title--a3 {
+    background: var(--accent-3);
+  }
+
+  .intro {
+    max-width: 38ch;
+    color: var(--muted);
+    font-size: var(--fs-md);
+    line-height: 1.45;
+  }
+
+  :lang(ka) .section-title {
+    font-size: var(--fs-xl);
+    line-height: 1.3;
+    letter-spacing: 0;
+  }
+
+  :lang(ka) .title {
+    padding-block: 0.08em 0;
+  }
+</style>

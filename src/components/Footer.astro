@@ -1,0 +1,74 @@
+---
+import Button from './ui/Button.astro';
+import type { Lang } from '../data/types';
+import { t } from '../data/i18n';
+import { person, links } from '../data/site';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const s = t(lang);
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container inner">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">{person.initials}</span>
+      <p>© {year} {person.name[lang]}</p>
+    </div>
+    <p class="built">
+      {s.footer.builtWith.before}<a href={links.astro} target="_blank" rel="noopener"
+        >Astro<span class="sr-only"> {s.a11y.newTab}</span></a
+      >{s.footer.builtWith.after}
+    </p>
+    <Button href="#top" size="sm" variant="card" icon="arrow-up">{s.footer.backToTop}</Button>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    padding-block: 2rem;
+    background: var(--card);
+    border-top: var(--bw) solid var(--border);
+  }
+
+  .inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem 2rem;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    font-weight: 700;
+  }
+
+  .logo {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    background: var(--accent-1);
+    color: var(--on-accent);
+    border: var(--bw-sm) solid var(--border);
+    font-family: var(--ff-logo);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+  }
+
+  .built {
+    font-size: var(--fs-sm);
+  }
+
+  .built a {
+    font-weight: 700;
+  }
+</style>

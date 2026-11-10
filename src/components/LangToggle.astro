@@ -1,0 +1,75 @@
+---
+import { LANGS, type Lang } from '../data/types';
+import { t, localePath } from '../data/i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const s = t(lang);
+---
+
+<div class="lang-switch" role="group" aria-label={s.a11y.language}>
+  {
+    LANGS.map((code) => (
+      <a
+        class="lang-link"
+        href={localePath(code)}
+        hreflang={code}
+        aria-current={code === lang ? 'page' : undefined}
+        data-lang-link={code}
+      >
+        {code.toUpperCase()}
+        <span class="sr-only" lang={code}>
+          {' '}
+          — {s.langNames[code]}
+        </span>
+      </a>
+    ))
+  }
+</div>
+
+<style>
+  .lang-switch {
+    display: flex;
+    border: var(--bw) solid var(--border);
+    box-shadow: var(--shadow-sm);
+    background: var(--card);
+  }
+
+  .lang-link {
+    display: grid;
+    place-items: center;
+    min-width: 2.75rem;
+    min-height: 2.5rem;
+    padding: 0 0.5rem;
+    font-family: var(--ff-mono);
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--fg);
+  }
+
+  .lang-link + .lang-link {
+    border-left: var(--bw) solid var(--border);
+  }
+
+  .lang-link[aria-current='page'] {
+    background: var(--accent-1);
+    color: var(--on-accent);
+  }
+
+  @media (hover: hover) {
+    .lang-link:not([aria-current]):hover {
+      background: var(--accent-2);
+      color: var(--on-accent);
+    }
+  }
+
+  .lang-link:focus-visible {
+    outline-offset: 2px;
+    position: relative;
+    z-index: 1;
+  }
+</style>

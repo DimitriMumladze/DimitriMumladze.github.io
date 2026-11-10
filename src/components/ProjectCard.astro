@@ -1,0 +1,148 @@
+---
+import Card from './ui/Card.astro';
+import Button from './ui/Button.astro';
+import TagList from './ui/TagList.astro';
+import type { Accent, Lang } from '../data/types';
+import type { Project } from '../data/projects';
+import { t } from '../data/i18n';
+
+interface Props {
+  project: Project;
+  lang: Lang;
+  accent: Accent;
+}
+
+const { project, lang, accent } = Astro.props;
+const s = t(lang);
+const title = project.title[lang];
+---
+
+<Card as="article" class="project">
+  <div class={`bar bar--a${accent}`}>
+    <span class="dots" aria-hidden="true"><span></span><span></span><span></span></span>
+    <span class="host">{project.host}</span>
+  </div>
+
+  <div class="body">
+    <h3 class="title">{title}</h3>
+    <p class="desc">{project.description[lang]}</p>
+    {project.client && <p class="client-label">{s.projects.client}</p>}
+    <ul class="bullets" role="list">
+      {project.bullets[lang].map((bullet) => <li>{bullet}</li>)}
+    </ul>
+    <TagList tags={project.tags} />
+    <div class="cta">
+      <Button
+        href={project.url}
+        external
+        newTabNote={s.a11y.newTab}
+        size="sm"
+        variant={`accent-${accent}`}
+        iconEnd="arrow-up-right"
+      >
+        {s.projects.visit}<span class="sr-only">: {title}</span>
+      </Button>
+    </div>
+  </div>
+</Card>
+
+<style>
+  .project {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.6rem 1rem;
+    background: var(--accent-1);
+    color: var(--on-accent);
+    border-bottom: var(--bw) solid var(--border);
+  }
+
+  .bar--a2 {
+    background: var(--accent-2);
+  }
+
+  .bar--a3 {
+    background: var(--accent-3);
+  }
+
+  .dots {
+    display: flex;
+    gap: 0.35rem;
+  }
+
+  .dots span {
+    width: 0.75rem;
+    height: 0.75rem;
+    background: var(--card);
+    border: var(--bw-sm) solid var(--border);
+  }
+
+  .host {
+    min-width: 0;
+    overflow: hidden;
+    font-family: var(--ff-mono);
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 1rem;
+    padding: clamp(1.25rem, 0.9rem + 1.5vw, 1.85rem);
+  }
+
+  .title {
+    font-size: var(--fs-lg);
+    line-height: 1.2;
+  }
+
+  .desc {
+    color: var(--muted);
+  }
+
+  .client-label {
+    align-self: flex-start;
+    padding: 0.2em 0.55em;
+    border: var(--bw-sm) solid var(--border);
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    line-height: 1.35;
+  }
+
+  .bullets {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .bullets li {
+    position: relative;
+    padding-inline-start: 1.35rem;
+    font-weight: 500;
+  }
+
+  .bullets li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.62em;
+    top: calc(0.5lh - 0.25rem);
+    width: 0.5rem;
+    height: 0.5rem;
+    background: var(--fg);
+  }
+
+  .cta {
+    margin-top: auto;
+    padding-top: 0.5rem;
+  }
+</style>
