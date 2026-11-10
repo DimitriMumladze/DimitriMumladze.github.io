@@ -16,7 +16,7 @@ export interface Project {
 export const projects: Project[] = [
   {
     id: 'inovatori',
-    title: { en: 'Inovatori Olympiad Platform', ka: 'Inovatori — საოლიმპიადო პლატფორმა' },
+    title: { en: 'Inovatori Olympiad Platform', ka: 'Inovatori • საოლიმპიადო პლატფორმა' },
     url: 'https://inovatori.edu.ge',
     host: 'inovatori.edu.ge',
     client: false,
@@ -40,13 +40,13 @@ export const projects: Project[] = [
   },
   {
     id: 'sagule',
-    title: { en: 'Sagule Resort Booking', ka: 'Sagule Resort — დაჯავშნის პლატფორმა' },
+    title: { en: 'Sagule Resort Booking', ka: 'Sagule Resort • დაჯავშნის პლატფორმა' },
     url: 'https://saguleresort.com',
     host: 'saguleresort.com',
     client: false,
     description: {
       en: 'A direct-booking site for a resort with 13 rooms, cottages and suites, with online booking and payment.',
-      ka: 'პირდაპირი დაჯავშნის საიტი კურორტისთვის 13 ოთახით, კოტეჯითა და ლუქსით — ონლაინ ჯავშნითა და გადახდით.',
+      ka: 'პირდაპირი დაჯავშნის საიტი კურორტისთვის 13 ოთახით, კოტეჯითა და ლუქსით, ონლაინ ჯავშნითა და გადახდით.',
     },
     bullets: {
       en: [
@@ -55,7 +55,7 @@ export const projects: Project[] = [
         'Availability stays correct on every channel',
       ],
       ka: [
-        'სტუმრები ონლაინ ჯავშნიან და იხდიან — თავიდან ბოლომდე',
+        'სტუმრები ონლაინ ჯავშნიან და იხდიან, თავიდან ბოლომდე',
         'ორმხრივი კალენდრის სინქრონიზაცია Airbnb-თან, Booking.com-თან და VRBO-სთან',
         'ხელმისაწვდომობა ყველა არხზე ზუსტია',
       ],

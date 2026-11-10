@@ -1,4 +1,4 @@
-# Dimitri Mumladze — Portfolio
+# Dimitri Mumladze • Portfolio
 
 A one-page, bilingual portfolio in a neo-brutalist style: English at `/`, Georgian at `/ka/`, light "Classic Pop" and dark "Neon Orange" themes.
 

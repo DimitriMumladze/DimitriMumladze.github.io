@@ -59,10 +59,10 @@ export function highlight(text: string): TextSegment[] {
 
 const en = {
   meta: {
-    title: 'Dimitri Mumladze — .NET Developer',
+    title: 'Dimitri Mumladze • .NET Developer',
     description:
       'Dimitri Mumladze is a .NET developer in Tbilisi, Georgia. He builds ASP.NET Core platforms at 63BITS and single-handedly built a live olympiad platform used by 250+ students.',
-    ogImageAlt: 'Dimitri Mumladze — Software Developer (.NET), Tbilisi, Georgia',
+    ogImageAlt: 'Dimitri Mumladze • Software Developer (.NET), Tbilisi, Georgia',
     ogLocale: 'en_US',
   },
   a11y: {
@@ -74,7 +74,7 @@ const en = {
     darkTheme: 'Dark theme',
     language: 'Language',
     newTab: '(opens in a new tab)',
-    logo: 'Dimitri Mumladze — back to top',
+    logo: 'Dimitri Mumladze • back to top',
   },
   langNames: { en: 'English', ka: 'ქართული' },
   nav: {
@@ -157,7 +157,7 @@ const en = {
         email: 'Please enter a valid email address.',
         message: 'Please write a message of at least 10 characters.',
       },
-      success: "Thanks! Your message is on its way — I'll get back to you soon.",
+      success: "Thanks! Your message is on its way. I'll get back to you soon.",
       failure: "Sorry, the message couldn't be sent. Please email me directly at",
     },
   },
@@ -176,10 +176,10 @@ export type UiStrings = typeof en;
 
 const ka: UiStrings = {
   meta: {
-    title: 'დიმიტრი მუმლაძე — .NET დეველოპერი',
+    title: 'დიმიტრი მუმლაძე • .NET დეველოპერი',
     description:
-      'დიმიტრი მუმლაძე — .NET დეველოპერი თბილისიდან. 63BITS-ში ქმნის ASP.NET Core პლატფორმებს, დამოუკიდებლად კი შექმნა საოლიმპიადო პლატფორმა, რომელსაც 250+ მოსწავლე იყენებს.',
-    ogImageAlt: 'დიმიტრი მუმლაძე — პროგრამული უზრუნველყოფის დეველოპერი (.NET), თბილისი',
+      'დიმიტრი მუმლაძე, .NET დეველოპერი თბილისიდან. 63BITS-ში ქმნის ASP.NET Core პლატფორმებს, დამოუკიდებლად კი შექმნა საოლიმპიადო პლატფორმა, რომელსაც 250+ მოსწავლე იყენებს.',
+    ogImageAlt: 'დიმიტრი მუმლაძე • პროგრამული უზრუნველყოფის დეველოპერი (.NET), თბილისი',
     ogLocale: 'ka_GE',
   },
   a11y: {
@@ -191,7 +191,7 @@ const ka: UiStrings = {
     darkTheme: 'მუქი თემა',
     language: 'ენა',
     newTab: '(იხსნება ახალ ჩანართში)',
-    logo: 'დიმიტრი მუმლაძე — გვერდის თავში დაბრუნება',
+    logo: 'დიმიტრი მუმლაძე • გვერდის თავში დაბრუნება',
   },
   langNames: { en: 'English', ka: 'ქართული' },
   nav: {
@@ -226,8 +226,8 @@ const ka: UiStrings = {
   },
   about: {
     paragraphs: [
-      '.NET აპლიკაციებს 2023 წლიდან ვქმნი, პროფესიულად კი — 63BITS-ში, 2026 წლის მაისიდან. აქ Agile/Scrum გუნდში ვაახლებ დიდ კორპორაციულ ASP.NET Core MVC / C# პლატფორმებს, სადაც ყოველი ცვლილება code review-ს გადის.',
-      'მარტომ შევქმენი და გავუშვი ASP.NET Core პლატფორმა, რომელსაც 250-ზე მეტი რეგისტრირებული მოსწავლე იყენებს. ყოველდღიურად ვიყენებ AI ინსტრუმენტებს (Claude Code, ChatGPT) კოდის წერის, დებაგინგის, ტესტირებისა და რეფაქტორინგისთვის — და ყოველ შედეგს ვამოწმებ, სანამ პროდაქშენში მოხვდება.',
+      '.NET აპლიკაციებს 2023 წლიდან ვქმნი, პროფესიულად კი 63BITS-ში, 2026 წლის მაისიდან. აქ Agile/Scrum გუნდში ვაახლებ დიდ კორპორაციულ ASP.NET Core MVC / C# პლატფორმებს, სადაც ყოველი ცვლილება code review-ს გადის.',
+      'მარტომ შევქმენი და გავუშვი ASP.NET Core პლატფორმა, რომელსაც 250-ზე მეტი რეგისტრირებული მოსწავლე იყენებს. ყოველდღიურად ვიყენებ AI ინსტრუმენტებს (Claude Code, ChatGPT) კოდის წერის, დებაგინგის, ტესტირებისა და რეფაქტორინგისთვის და ყოველ შედეგს ვამოწმებ, სანამ პროდაქშენში მოხვდება.',
     ],
     statsLabel: 'ციფრებში',
   },
@@ -235,7 +235,7 @@ const ka: UiStrings = {
     certificate: 'სერტიფიკატი',
   },
   projects: {
-    intro: 'მოქმედი პროდუქტები — შექმნილი და გაშვებული. გადახედეთ.',
+    intro: 'მოქმედი პროდუქტები: შექმნილი და გაშვებული. გადახედეთ.',
     visit: 'საიტის ნახვა',
     client: '63BITS-ის კლიენტის პროექტი, ჩემი წვლილი:',
     moreOnGitHub: 'მეტი კოდი GitHub-ზე',
@@ -255,7 +255,7 @@ const ka: UiStrings = {
   },
   contact: {
     heading: 'მოდით, ვისაუბროთ.',
-    lead: 'ეძებთ .NET დეველოპერს, გაქვთ პროექტი ან კითხვა? მომწერეთ — მალე გიპასუხებთ.',
+    lead: 'ეძებთ .NET დეველოპერს, გაქვთ პროექტი ან კითხვა? მომწერეთ და მალე გიპასუხებთ.',
     direct: 'ან დამიკავშირდით პირდაპირ',
     emailLabel: 'ელფოსტა',
     phoneLabel: 'ტელეფონი',
@@ -274,7 +274,7 @@ const ka: UiStrings = {
         email: 'გთხოვთ, მიუთითოთ სწორი ელფოსტა.',
         message: 'შეტყობინება უნდა შეიცავდეს მინიმუმ 10 სიმბოლოს.',
       },
-      success: 'მადლობა! შეტყობინება გაიგზავნა — მალე გიპასუხებთ.',
+      success: 'მადლობა! შეტყობინება გაიგზავნა. მალე გიპასუხებთ.',
       failure: 'სამწუხაროდ, შეტყობინება ვერ გაიგზავნა. მომწერეთ პირდაპირ:',
     },
   },
